@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Встречайте нового покупателя!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            background-color: #3498db;
+            color: #fff;
+            padding: 20px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            color: #666;
+        }
+
+        .new-hire-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .new-hire-details {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Встречайте нового покупателя!</h1>
+        </div>
+        <div class="content">
+            <div class="new-hire-info">
+                <div class="new-hire-details">
+                    <h2>{{ user.username }}</h2>
+                </div>
+            </div>
+            <p>Дорогие коллеги,</p>
+            <p>Встретьте нашего нового покупателя - {{ user.username }}! Просим любить и жаловать.</p>
+            <p>Мы уверены, что {{ user.username }} будет отличным клиентом нашего магазина, и с нетерпением ждем его покупок.</p>
+        </div>
+        <div class="footer">
+            <p>MIR SHOP</p>
+        </div>
+    </div>
+</body>
+</html>

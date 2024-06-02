@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}DanceAcademy{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link type="image/x-icon" href="static/favicon.png" rel="shortcut icon">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='back.jpg') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: rgba(255, 215, 0, 0.5) !important;
+        }
+        .btn-create-class {
+            background-color: rgba(255, 215, 0, 0.5);
+            color: #ffffff;
+            display: block;
+            margin: 0 auto;
+        }
+        .btn-create-class:hover {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" style="color:#89856b" href="{{ url_for('main.index') }}">DanceAcademy</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link"  href="{{ url_for('main.classes') }}">Classes</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container my-5" style="text-align: center;">
+<h1 class="display-4 welcome-text" style="color: #89856b" >Welcome to the Dance Academy!</h1>
+<img src="{{ url_for('static', filename='dance.jpg') }}" alt="Dance Image" class="img-fluid mb-4">
+<p class="lead" style="color:#454236">Explore our dance classes and sign up today.</p>
+<p>Get started by checking out our class.</p>
+{% if current_user.is_admin() %}
+    <a href="{{ url_for('main.create_classes') }}" class="btn btn-create-class btn-lg">Create a Class</a>
+{% else %}
+<a href="{{ url_for('main.classes') }}" class="btn btn-create-class btn-lg">View Classes</a>
+{% endif %}
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
