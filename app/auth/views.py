@@ -34,6 +34,10 @@ def login():
     It renders the login template and processes the login form submission.
     If the form is valid and the user credentials are correct, the user is logged in and redirected to the next page.
     If the credentials are invalid, a flash message is displayed.
+
+    Returns:
+        str: The rendered HTML of the 'auth/login.html' template if the form is not submitted,
+             or a redirect to the next page if the form is successfully submitted.
     """
     form = LoginForm()
     if form.validate_on_submit():
@@ -55,6 +59,10 @@ def register():
     It renders the registration template and processes the registration form submission.
     If the form is valid, a new user is created, the password is hashed, and a confirmation token is generated and sent to the user's email.
     The user is then redirected to the login page.
+
+    Returns:
+        str: The rendered HTML of the 'auth/registration.html' template if the form is not submitted,
+             or a redirect to the login page if the form is successfully submitted.
     """
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -76,6 +84,9 @@ def logout():
     """
     This function handles the user logout process.
     It logs out the current user and redirects them to the main page.
+
+    Returns:
+        str: A redirect to the main page.
     """
     logout_user()
     flash("You have been logged out.")
@@ -88,8 +99,15 @@ def confirm(token):
     """
     This function handles the user email confirmation process.
     If the current user is already confirmed, they are redirected to the main page.
+
     If the confirmation token is valid, the user's account is confirmed and they are redirected to the login page.
     If the token is invalid, a flash message is displayed and the user is redirected to the main page.
+
+    Args:
+        token (str): The confirmation token to be used for confirming the user's account.
+
+    Returns:
+        str: A redirect to the main page if the token is invalid, or a redirect to the login page if the token is valid.
     """
     if current_user.confirmed:
         return redirect(url_for('main.index'))
@@ -108,42 +126,11 @@ def unconfirmed():
     """
     This function renders the 'unconfirmed' template if the current user is not confirmed.
     If the user is anonymous or confirmed, they are redirected to the main page.
+
+    Returns:
+        str: The rendered HTML of the 'auth/unconfirmed.html' template if the current user is not confirmed,
+             or a redirect to the main page if the user is anonymous or confirmed.
     """
     if current_user.is_anonymous or current_user.confirmed:
         return redirect(url_for('main.index'))
     return render_template('auth/unconfirmed.html')
-
-
-def send_confirm(user, token):
-    """
-    This function sends a confirmation email to the user.
-    It generates the confirmation URL and calls the 'send_mail' function to send the email.
-    """
-    confirm_url = url_for('auth.confirm', token=token, _external=True)
-    send_mail(user.email, 'Подтвердите свою учетную запись', 'auth/confirm', user=user, confirm_url=confirm_url)
-
-
-def send_mail(to, subject, template, **kwargs):
-    """
-    This function sends an email using the Flask-Mail extension.
-    It creates a new email message with the given subject, sender, and recipient.
-    The email body is rendered from the specified template, and the message is sent asynchronously using a separate thread.
-    """
-    msg = Message(subject, sender="mirnatik2@gmail.com", recipients=[to])
-    try:
-        msg.html = render_template(template + ".html", **kwargs)
-    except:
-        msg.body = render_template(template + ".txt", **kwargs)
-    from app_file import flask_app
-    thread = Thread(target=send_async_email, args=[flask_app, msg])
-    thread.start()
-    return thread
-
-
-def send_async_email(app, msg):
-    """
-    This function sends an email asynchronously using the Flask-Mail extension.
-    It takes the Flask application and the email message as arguments, and sends the message within the application context.
-    """
-    with app.app_context():
-        mail.send(msg)

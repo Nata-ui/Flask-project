@@ -12,29 +12,48 @@ from app import db
 
 @main.route("/user/<name>")
 def hello_user(name):
-    """This function takes a `name` parameter and returns an HTML response with a greeting message."""
+    """This function takes a name parameter and returns an HTML response with a greeting message.
+
+    Args:
+        name (str): The name of the user to be used in the greeting.
+
+    Returns:
+        str: An HTML string with the greeting message.
+    """
     return '<h2>Hello, {}</h2>'.format(name)
 
 
 @main.route("/user_info")
 def info():
     """This function retrieves the user's IP address and browser information
-    and returns an HTML response displaying this information."""
+    and returns an HTML response displaying this information.
+
+    Returns:
+        str: An HTML string containing the user's IP address and browser information.
+    """
     user_ip = request.remote_addr
-    user_agent = request.headers.get ('User-Agent')
-    return '<h2>Your IP address is {}/</h2><h2>Your browser is {}</h2>'. format(user_ip, user_agent)
+    user_agent = request.headers.get('User-Agent')
+    return '<h2>Your IP address is {}/</h2><h2>Your browser is {}</h2>'.format(user_ip, user_agent)
 
 
 @main.route("/")
 def index():
-    """This function renders the 'ind.html' template and returns the rendered HTML."""
+    """This function renders the 'ind.html' template and returns the rendered HTML.
+
+    Returns:
+        str: The rendered HTML of the 'ind.html' template.
+    """
     return render_template('ind.html')
 
 
 @main.route('/secret')
 @login_required
 def secret():
-    """This function is accessible only to authenticated users and returns the string 'Only for auth'."""
+    """This function is accessible only to authenticated users and returns the string 'Only for auth'.
+
+    Returns:
+        str: The string 'Only for auth'.
+    """
     return "Only for auth"
 
 
@@ -42,7 +61,11 @@ def secret():
 @login_required
 @admin_required
 def for_admin():
-    """This function is accessible only to users with the 'admin' role and returns the string 'For admin'."""
+    """This function is accessible only to users with the 'admin' role and returns the string 'For admin'.
+
+    Returns:
+        str: The string 'For admin'.
+    """
     return "For admin"
 
 
@@ -51,14 +74,19 @@ def for_admin():
 @permission_required(Permission.MODERATE)
 def for_moderator():
     """This function is accessible only to users with the 'moderate' permission
-    and returns the string 'For moderator'."""
+    and returns the string 'For moderator'.
+
+    Returns:
+        str: The string 'For moderator'.
+    """
     return "For moderator"
 
 
 @main.route("/testConfirm")
 def testConfirm():
     """This function retrieves the first user from the database, generates a
-    confirmation token for the user, and then confirms the user."""
+    confirmation token for the user, and then confirms the user.
+    """
     user = User.query.filter_by().first()
     tmp = user.generate_confirmation_token()
     user.confirm(tmp)
@@ -67,14 +95,22 @@ def testConfirm():
 @main.route('/profile')
 @login_required
 def profile():
-    """This function renders the 'profile.html' template and displays the current user's information."""
+    """This function renders the 'profile.html' template and displays the current user's information.
+
+    Returns:
+        str: The rendered HTML of the 'profile.html' template.
+    """
     return render_template('profile.html')
 
 
 @main.route('/classes')
 def classes():
     """This function retrieves all the dancing classes from the database and renders
-    the 'classes.html' template with the classes data."""
+    the 'classes.html' template with the classes data.
+
+    Returns:
+        str: The rendered HTML of the 'classes.html' template with the dancing classes data.
+    """
     dancings = DancingClasses.query.all()
     return render_template('classes.html', dancings=dancings)
 
@@ -84,11 +120,17 @@ def classes():
 def create_classes():
     """This function handles the creation of new dancing classes. It renders the
     'create_classes.html' template with a form, and when the form is submitted, it creates
-    a new `DancingClasses` instance, saves the video file (if provided), and adds the new class to the database."""
+    a new DancingClasses instance, saves the video file (if provided), and adds the new class to the database.
+
+    Returns:
+        str: The rendered HTML of the 'create_classes.html' template if the form is not submitted,
+             or a redirect to the index page if the form is successfully submitted.
+    """
     form = ClassesForm()
     if form.validate_on_submit():
         dancing = DancingClasses(
             title=form.title.data,
+
             description=form.description.data,
             time=form.time.data,
             category=form.category.data,
@@ -108,8 +150,14 @@ def create_classes():
 @main.route('/dancing/<int:dancing_id>', methods=['GET', 'POST'])
 @login_required
 def classes_detail(dancing_id):
-    """This function retrieves the dancing class with the given `dancing_id`
-    and renders the 'classes_detail.html' template with the class data."""
+    """This function retrieves the dancing class with the given dancing_id
+    and renders the 'classes_detail.html' template with the class data.
+
+    Args:
+        dancing_id (int): The ID of the dancing class to be retrieved.
+
+    Returns:
+        str: The rendered HTML of the 'classes_detail.html' template with the dancing class data.
+    """
     dancing = DancingClasses.query.get_or_404(dancing_id)
     return render_template('classes_detail.html', dancing=dancing)
-
