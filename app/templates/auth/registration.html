@@ -26,26 +26,6 @@
         .btn-create-class:hover {
             color: #6c757d;
         }
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.5);
-            border-color: #89856b;
-            color: #454236;
-        }
-        .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-color: #6c757d;
-            box-shadow: none;
-        }
-        .btn-primary {
-            background-color: rgba(255, 215, 0, 0.5);
-            border-color: #89856b;
-            color: #ffffff;
-        }
-        .btn-primary:hover {
-            background-color: rgba(255, 215, 0, 0.8);
-            border-color: #6c757d;
-            color: #6c757d;
-        }
     </style>
 </head>
 <body>
@@ -62,7 +42,7 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+                    <a class="nav-link" href="{{ url_for('main.profile', username=current_user.username) }}">Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>

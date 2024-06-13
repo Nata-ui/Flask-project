@@ -1,11 +1,11 @@
 import os
 from flask import request, current_app
-from app.models import Permission, DancingClasses, User
-from ..decorators import admin_required, permission_required
+from app.models import DancingClasses, User, Review
+from ..decorators import admin_required
 from flask_login import login_required, current_user
 from flask import redirect, url_for, render_template
 from werkzeug.utils import secure_filename
-from app.main.forms import ClassesForm
+from app.main.forms import ClassesForm, ReviewForm
 from app.main import main
 from app import db
 
@@ -69,19 +69,6 @@ def for_admin():
     return "For admin"
 
 
-@main.route('/moderate')
-@login_required
-@permission_required(Permission.MODERATE)
-def for_moderator():
-    """This function is accessible only to users with the 'moderate' permission
-    and returns the string 'For moderator'.
-
-    Returns:
-        str: The string 'For moderator'.
-    """
-    return "For moderator"
-
-
 @main.route("/testConfirm")
 def testConfirm():
     """This function retrieves the first user from the database, generates a
@@ -92,15 +79,12 @@ def testConfirm():
     user.confirm(tmp)
 
 
-@main.route('/profile')
+@main.route('/profile/<username>')
 @login_required
-def profile():
-    """This function renders the 'profile.html' template and displays the current user's information.
-
-    Returns:
-        str: The rendered HTML of the 'profile.html' template.
-    """
-    return render_template('profile.html')
+def profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    review_count = Review.query.filter_by(user_id=user.id).count()
+    return render_template('profile.html', user=user, review_count=review_count)
 
 
 @main.route('/classes')
@@ -130,9 +114,8 @@ def create_classes():
     if form.validate_on_submit():
         dancing = DancingClasses(
             title=form.title.data,
-
             description=form.description.data,
-            time=form.time.data,
+            datetime=form.datetime.data,
             category=form.category.data,
             trainer=current_user
         )
@@ -150,14 +133,12 @@ def create_classes():
 @main.route('/dancing/<int:dancing_id>', methods=['GET', 'POST'])
 @login_required
 def classes_detail(dancing_id):
-    """This function retrieves the dancing class with the given dancing_id
-    and renders the 'classes_detail.html' template with the class data.
-
-    Args:
-        dancing_id (int): The ID of the dancing class to be retrieved.
-
-    Returns:
-        str: The rendered HTML of the 'classes_detail.html' template with the dancing class data.
-    """
     dancing = DancingClasses.query.get_or_404(dancing_id)
-    return render_template('classes_detail.html', dancing=dancing)
+    form = ReviewForm()
+    if form.validate_on_submit():
+        review = Review(comments=form.comments.data, rating=form.rating.data, user_id=current_user.id, dancing_id=dancing.id)
+        db.session.add(review)
+        db.session.commit()
+        return redirect(url_for('main.classes_detail', dancing_id=dancing_id))
+    reviews = Review.query.filter_by(dancing_id=dancing_id).all()
+    return render_template('classes_detail.html', form=form, dancing=dancing, reviews=reviews)

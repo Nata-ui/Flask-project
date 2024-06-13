@@ -16,7 +16,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding-top: 56px; /* height of the navbar */
+            padding-top: 56px;
         }
         .navbar {
             background-color: rgba(255, 215, 0, 0.5) !important;
@@ -25,17 +25,23 @@
             top: 0;
             z-index: 1000;
         }
+        .btn-create-class {
+            background-color: rgba(255, 215, 0, 0.5);
+            color: #ffffff;
+            display: block;
+            margin: 0 auto;
+        }
         .text-color {
             color: #89856b;
         }
         .max-video-size {
             max-width: 100%;
-            max-height: 500px;
+            max-height: 1200px;
         }
         .video-container {
             position: relative;
-            width: 60%;
-            padding-bottom: 33.75%;
+            width: 100%;
+            padding-bottom: 56.25%;
             margin-bottom: 20px;
             overflow: hidden;
             border: 2px solid rgba(255, 215, 0, 0.5);
@@ -45,13 +51,11 @@
         .video-container video {
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
-
         .text-container {
             max-width: 60%;
             margin: 0 auto;
@@ -62,6 +66,37 @@
         }
         p {
             margin-bottom: 10px;
+        }
+        .star-rating {
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2em;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star-rating input:checked ~ label {
+            color: #FFD700;
+        }
+
+        .star-rating input:checked ~ label ~ label {
+            color: #ccc;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #FFD700;
+        }
+        .card{
+            background-color: rgba(255, 215, 0, 0.2);
         }
     </style>
 </head>
@@ -79,7 +114,7 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+                    <a class="nav-link" href="{{ url_for('main.profile', username=current_user.username) }}">Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
@@ -110,12 +145,101 @@
     {% endif %}
     <div class="text-container">
         <p class="text-color">{{ dancing.description }}</p>
-        <p class="text-color">Time: {{ dancing.time }}</p>
+        <p class="text-color">Date and Time: {{ dancing.datetime.strftime('%Y-%m-%d %H:%M')  }}</p>
         <p class="text-color">Group: {{ dancing.category }}</p>
     </div>
+    <button type="button" class="btn btn-create-class btn-lg" data-toggle="modal" data-target="#addReviewModal">Write a Review</button>
 </div>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('main.classes_detail', dancing_id=dancing.id) }}">
+          {{ form.hidden_tag() }}
+          <div class="form-group">
+            {{ form.comments.label(class="form-control-label") }}
+            {{ form.comments(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ form.rating.label(class="form-control-label") }}
+            <div class="star-rating">
+                <input type="radio" id="rating-5" name="rating" value="1"><label for="rating-5">&#9733;</label>
+                <input type="radio" id="rating-4" name="rating" value="2"><label for="rating-4">&#9733;</label>
+                <input type="radio" id="rating-3" name="rating" value="3"><label for="rating-3">&#9733;</label>
+                <input type="radio" id="rating-2" name="rating" value="4"><label for="rating-2">&#9733;</label>
+                <input type="radio" id="rating-1" name="rating" value="5"><label for="rating-1">&#9733;</label>
+            </div>
+          </div>
+          <div class="form-group">
+            {{ form.submit(class="btn btn-create-class btn-lg") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container flex-column justify-content-center">
+    <h3 class="text-color">Reviews</h3>
+    {% for review in reviews %}
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"><a href="{{ url_for('main.profile', username=review.author.username) }}">{{ review.author.username }}</a></h5>
+            <p class="card-text">{{ review.comments }}</p>
+            <p class="card-text">Rating: {{ review.rating }} / 5</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('.star-rating label');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                stars.forEach(s => s.style.color = '#ccc');
+                this.style.color = '#FFD700';
+                let previousStar = this.previousElementSibling;
+                while (previousStar) {
+                    previousStar.style.color = '#FFD700';
+                    previousStar = previousStar.previousElementSibling;
+                }
+            });
+        });
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                stars.forEach(s => s.style.color = '#ccc');
+                this.style.color = '#FFD700';
+                let previousStar = this.previousElementSibling;
+                while (previousStar) {
+                    previousStar.style.color = '#FFD700';
+                    previousStar = previousStar.previousElementSibling;
+                }
+            });
+
+            star.addEventListener('mouseout', function() {
+                stars.forEach(s => s.style.color = '');
+                const checkedStar = document.querySelector('.star-rating input:checked + label');
+                if (checkedStar) {
+                    checkedStar.style.color = '#FFD700';
+                    let previousStar = checkedStar.previousElementSibling;
+                    while (previousStar) {
+                        previousStar.style.color = '#FFD700';
+                        previousStar = previousStar.previousElementSibling;
+                    }
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

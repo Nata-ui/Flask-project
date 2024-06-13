@@ -78,6 +78,7 @@ class User(db.Model, UserMixin):
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     classes = db.relationship('DancingClasses', backref='trainer', lazy='dynamic')
+    reviews = db.relationship('Review', backref='author', lazy='dynamic')  # Ensure this backref name is unique
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -135,14 +136,25 @@ class User(db.Model, UserMixin):
 
 
 class DancingClasses(db.Model):
-    __tablename__ = 'class'
+    __tablename__ = 'classes'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    time = db.Column(db.Integer, nullable=False)
+    datetime = db.Column(db.DateTime, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     video_path = db.Column(db.String(255), nullable=True)
+    reviews = db.relationship('Review', backref='dancing_class', lazy='dynamic')
+
+
+class Review(db.Model):
+    __tablename__ = 'reviews'
+    id = db.Column(db.Integer, primary_key=True)
+    rating = db.Column(db.Integer)
+    comments = db.Column(db.String(200))
+    dancing_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 
 class AnonymousUser(AnonymousUserMixin):
